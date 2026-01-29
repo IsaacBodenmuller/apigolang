@@ -65,7 +65,7 @@ func (p *productController) GetProductById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, product)
 }
 
-func (p *productController) CreateProduct(ctx * gin.Context) {
+func (p *productController) CreateProduct(ctx *gin.Context) {
 
 	var product model.Product
 	err := ctx.BindJSON(&product)
@@ -83,3 +83,12 @@ func (p *productController) CreateProduct(ctx * gin.Context) {
 
 	ctx.JSON(http.StatusCreated, insertedProduct)
 }
+
+// func (p *productController) UpdateProductById(ctx *gin.Context) {
+// 	id := ctx.Params("id")
+
+// }
+
+// func (p *productController) DeleteProductById(ctx *gin.Context) {
+
+// }
