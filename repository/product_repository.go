@@ -89,3 +89,62 @@ func (pr *ProductRepository) CreateProduct(product model.Product) (int, error) {
 	query.Close()
 	return id, nil
 }
+
+func (pr *ProductRepository) UpdateProductById(product_id int, product model.Product) (*model.Product, error) {
+
+	oldProduct, err := pr.GetProductById(product_id)
+	if err != nil{
+		fmt.Println(err)
+		return nil, err
+	}
+	
+	if product.Name == nil {
+		product.Name = oldProduct.Name
+	}
+	if product.Price == nil {
+		product.Price = oldProduct.Price
+	}
+	
+	var updatedProduct model.Product
+
+	query, err := pr.connection.Prepare("UPDATE product" +
+		" SET product_name = $1, product_price = $2" + 
+		" WHERE product_id = $3 RETURNING product_id, product_name, product_price")
+	if err != nil{
+		fmt.Println(err)
+		return nil, err
+	}
+
+	err = query.QueryRow(product.Name, product.Price, product_id).Scan(&updatedProduct.Id, &updatedProduct.Name, &updatedProduct.Price)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	query.Close()
+	return &updatedProduct, nil
+}
+
+func (pr *ProductRepository) DeleteProductById(product_id int) (bool, error) {
+
+	query := "DELETE FROM product" + 
+		" WHERE product_id = $1"
+
+	result, err := pr.connection.Exec(query, product_id)
+	if err != nil{
+		fmt.Println(err)
+		return false, err
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	if rows == 0 {
+		return false, nil
+	}
+
+	return true, nil
+
+}

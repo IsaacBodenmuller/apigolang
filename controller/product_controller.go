@@ -84,11 +84,86 @@ func (p *productController) CreateProduct(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, insertedProduct)
 }
 
-// func (p *productController) UpdateProductById(ctx *gin.Context) {
-// 	id := ctx.Params("id")
+func (p *productController) UpdateProductById(ctx *gin.Context) {
 
-// }
+	var product model.Product
+	err := ctx.BindJSON(&product)
 
-// func (p *productController) DeleteProductById(ctx *gin.Context) {
+	if err != nil {
+		ctx.JSON(http.StatusBadGateway, err)
+		return
+	}
+	if product.Name == nil && product.Price == nil {
+		response := model.Response{
+			Message: "É necessário preencher ao menos um campo para ser atualizado",
+		}
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
 
-// }
+	id := ctx.Param("id")
+	if id == "" {
+		response := model.Response{
+			Message: "Id do produto não pode ser nulo",
+		}
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	productId, err := strconv.Atoi(id)
+	if err != nil {
+		response := model.Response{
+			Message: "Id do produto precisa ser um número",
+		}
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	updatedProduct, err := p.productUsecase.UpdateProductById(productId, product)
+	if updatedProduct == nil {
+		response := model.Response{
+			Message: "Produto não foi encontrado na base de dados",
+		}
+		ctx.JSON(http.StatusNotFound, response)
+		return
+	}
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, updatedProduct)
+}
+
+func (p *productController) DeleteProductById(ctx *gin.Context) {
+
+	id := ctx.Param("id")
+	if id == "" {
+		response := model.Response{
+			Message: "Id do produto não pode ser nulo",
+		}
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	productId, err := strconv.Atoi(id)
+	if err != nil {
+		response := model.Response{
+			Message: "Id do produto precisa ser um número",
+		}
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	isSucess, err := p.productUsecase.DeleteProductById(productId)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, err)
+		return
+	}
+	if isSucess {
+		response := model.Response{
+			Message: "O produto foi deletado com sucesso",
+		}
+		ctx.JSON(http.StatusOK, response)
+	}
+}

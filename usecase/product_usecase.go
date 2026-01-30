@@ -38,3 +38,21 @@ func (pu *ProductUsecase) CreateProduct(product model.Product) (model.Product, e
 	product.Id = productId
 	return product, nil
 }
+
+func (pu *ProductUsecase) UpdateProductById(product_id int, product model.Product) (*model.Product, error) {
+
+	updatedProduct, err := pu.repository.UpdateProductById(product_id, product)
+	if err != nil {
+		return nil, err
+	}
+	return updatedProduct, nil
+}
+
+func (pu *ProductUsecase) DeleteProductById(product_id int) (bool, error) {
+
+	isSuccess, err := pu.repository.DeleteProductById(product_id)
+	if err != nil {
+		return false, err
+	}
+	return isSuccess, nil
+}
