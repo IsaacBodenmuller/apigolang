@@ -4,7 +4,6 @@ import (
 	"APIGolang/internal/auth"
 	"APIGolang/internal/model"
 	"APIGolang/internal/usecase"
-	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,9 +21,8 @@ func (uc *UserController) Login(c *gin.Context) {
 	var req model.LoginRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		fmt.Println(err)
-
-		c.JSON(400,err)
+		c.JSON(400,gin.H{
+		"error": err.Error()})
 		return
 	}
 
