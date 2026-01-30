@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"APIGolang/model"
-	"APIGolang/usecase"
+	"APIGolang/internal/model"
+	"APIGolang/internal/usecase"
 	"net/http"
 	"strconv"
 

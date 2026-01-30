@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"APIGolang/model"
+	"APIGolang/internal/model"
 	"database/sql"
 	"fmt"
 )

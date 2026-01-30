@@ -1,8 +1,8 @@
 package usecase
 
 import (
-	"APIGolang/model"
-	"APIGolang/repository"
+	"APIGolang/internal/model"
+	"APIGolang/internal/repository"
 )
 
 type ProductUsecase struct {

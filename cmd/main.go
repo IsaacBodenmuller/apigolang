@@ -1,10 +1,8 @@
 package main
 
 import (
-	"APIGolang/controller"
-	"APIGolang/db"
-	"APIGolang/repository"
-	"APIGolang/usecase"
+	"APIGolang/internal/db"
+	"APIGolang/internal/routes"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,26 +16,13 @@ func main() {
 		panic(err)
 	}
 
-	//Camada Repository
-	ProductRepository := repository.NewProductRepository(dbConnection)
-
-	//Camada Usecase
-	ProductUsecase := usecase.NewProductUseCase(ProductRepository)
-
-	//Camada Controller
-	ProductController := controller.NewProductController(ProductUsecase)
+	routes.RegisterProductRoutes(server, dbConnection)
 
 	server.GET("/ping", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{
 			"message": "pong",
 		})
 	})
-
-	server.GET("/products", ProductController.GetProducts)
-	server.GET("/product/:id", ProductController.GetProductById)
-	server.POST("/product", ProductController.CreateProduct)
-	server.PUT("/product/:id", ProductController.UpdateProductById)
-	server.DELETE("/product/:id", ProductController.DeleteProductById)
 
 	server.Run(":8000")
 }
