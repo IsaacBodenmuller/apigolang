@@ -17,6 +17,7 @@ func main() {
 	}
 
 	routes.RegisterProductRoutes(server, dbConnection)
+	routes.RegisterAuthRoutes(server, dbConnection)
 
 	server.GET("/ping", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{
