@@ -20,7 +20,7 @@ func (r *UserRepository) GetByEmail(email string) (*model.User, error) {
 
 	var user model.User
 
-	query := "SELECT user_id, user_email, user_password FROM user WHERE user_email = $1"
+	query := "SELECT user_id, user_email, user_password FROM public.user WHERE user_email = $1"
 
 	err := r.connection.QueryRow(query, email).Scan(&user.Id, &user.Email, &user.Password)
 
