@@ -16,9 +16,9 @@ func NewUserController(uc *usecase.AuthUseCase) *UserController {
 	return &UserController{usecase: uc}
 }
 
-func (uc *UserController) Login(c *gin.Context) {
+func (userCtrl *UserController) Login(c *gin.Context) {
 
-	var req model.LoginRequest
+	var req model.TokenRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(400,gin.H{
@@ -26,13 +26,15 @@ func (uc *UserController) Login(c *gin.Context) {
 		return
 	}
 
-	user, err := uc.usecase.Login(req.Email, req.Password)
+	user, err := userCtrl.usecase.Login(req.Nome_Usuario, req.Senha)
 	if err != nil {
-		c.JSON(401, gin.H{"error": "credenciais inválidas"})
+		c.JSON(401, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
-	token, _ := auth.GenerateToken(user.Id, user.Email)
+	token, _ := auth.GenerateToken(user.Id, user.Nome, user.Nome_Usuario, user.Perfil)
 
 	c.JSON(200, gin.H{
 		"token": token,

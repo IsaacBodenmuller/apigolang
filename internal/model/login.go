@@ -1,6 +1,6 @@
 package model
 
-type LoginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+type TokenRequest struct {
+	Nome_Usuario string `json:"nome_usuario"`
+	Senha        string `json:"senha"`
 }

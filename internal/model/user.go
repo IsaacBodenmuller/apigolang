@@ -1,7 +1,9 @@
 package model
 
 type User struct {
-	Id       int
-	Email    string
-	Password string
+	Id           int
+	Nome         string
+	Nome_Usuario string
+	Perfil       string
+	Ativo        bool
 }
