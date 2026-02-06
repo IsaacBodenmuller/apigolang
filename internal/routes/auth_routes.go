@@ -16,4 +16,5 @@ func RegisterAuthRoutes(r *gin.Engine, db *sql.DB) {
 	authController := controller.NewUserController(authUsecase)
 
 	r.POST("/auth/login", authController.Login)
+	r.POST("/auth/create", authController.CreateUser)
 }
