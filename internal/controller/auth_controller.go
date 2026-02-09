@@ -17,6 +17,17 @@ func NewUserController(uc *usecase.AuthUseCase) *UserController {
 	return &UserController{usecase: uc}
 }
 
+// Login godoc
+// @Summary Autenticar usuário
+// @Description Realiza login e retorna o token
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param credentials body model.TokenRequest true "Credenciais do usuário"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Router /auth/login [post]
 func (userCtrl *UserController) Login(c *gin.Context) {
 
 	var req model.TokenRequest
@@ -42,6 +53,16 @@ func (userCtrl *UserController) Login(c *gin.Context) {
 	})
 }
 
+// CreateUser godoc
+// @Summary Criar usuário
+// @Description Cria um novo usuário
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param credentials body model.CreateUserRequest true "Dados do usuário"
+// @Success 201 {object} map[string]string
+// @Failure 400 {object} map[string]interface{}
+// @Router /auth/create [post]
 func (userCtrl *UserController) CreateUser(c *gin.Context) {
 
 	var req model.CreateUserRequest

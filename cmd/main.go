@@ -5,7 +5,20 @@ import (
 	"APIGolang/internal/routes"
 
 	"github.com/gin-gonic/gin"
+
+	_ "APIGolang/swagger/v1"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
+
+// @title Mercado
+// @version 1.0
+// @description API para o sistema do mercado
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 
 func main() {
 	
@@ -24,6 +37,8 @@ func main() {
 			"message": "pong",
 		})
 	})
+
+	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	server.Run(":8000")
 }

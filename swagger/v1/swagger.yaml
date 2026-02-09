@@ -1,0 +1,250 @@
+definitions:
+  model.CreateUserRequest:
+    properties:
+      email:
+        type: string
+      nome:
+        type: string
+      nomeUsuario:
+        type: string
+      perfil:
+        type: string
+      senha:
+        type: string
+    required:
+    - email
+    - nome
+    - nomeUsuario
+    - senha
+    type: object
+  model.Product:
+    properties:
+      productId:
+        type: integer
+      productName:
+        type: string
+      productPrice:
+        type: number
+    type: object
+  model.Response:
+    properties:
+      message:
+        type: string
+    type: object
+  model.TokenRequest:
+    properties:
+      nomeUsuario:
+        type: string
+      senha:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: API para o sistema do mercado
+  title: Mercado
+  version: "1.0"
+paths:
+  /auth/create:
+    post:
+      consumes:
+      - application/json
+      description: Cria um novo usuário
+      parameters:
+      - description: Dados do usuário
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Criar usuário
+      tags:
+      - Auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Realiza login e retorna o token
+      parameters:
+      - description: Credenciais do usuário
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/model.TokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Autenticar usuário
+      tags:
+      - Auth
+  /products:
+    get:
+      description: Retorna todos os produtos
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Product'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Listar produtos
+      tags:
+      - Products
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Produto
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/model.Product'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Product'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Criar produto
+      tags:
+      - Products
+  /products/{id}:
+    delete:
+      parameters:
+      - description: ID do produto
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - BearerAuth: []
+      summary: Deletar produto
+      tags:
+      - Products
+    get:
+      parameters:
+      - description: ID do produto
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Product'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - BearerAuth: []
+      summary: Buscar produto por ID
+      tags:
+      - Products
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID do produto
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Campos para atualizar
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/model.Product'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Product'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - BearerAuth: []
+      summary: Atualizar produto
+      tags:
+      - Products
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

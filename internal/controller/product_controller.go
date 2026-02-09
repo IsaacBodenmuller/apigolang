@@ -19,6 +19,15 @@ func NewProductController(usecase usecase.ProductUsecase) productController {
 	}
 }
 
+// GetProducts godoc
+// @Summary Listar produtos
+// @Description Retorna todos os produtos
+// @Tags Products
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {array} model.Product
+// @Failure 401 {object} map[string]string
+// @Router /products [get]
 func (p *productController) GetProducts(ctx *gin.Context) {
 	
 	products, err := p.productUsecase.GetProducts()
@@ -29,6 +38,16 @@ func (p *productController) GetProducts(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, products)
 }
 
+// GetProductById godoc
+// @Summary Buscar produto por ID
+// @Tags Products
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "ID do produto"
+// @Success 200 {object} model.Product
+// @Failure 400 {object} model.Response
+// @Failure 404 {object} model.Response
+// @Router /products/{id} [get]
 func (p *productController) GetProductById(ctx *gin.Context) {
 
 	id := ctx.Param("id")
@@ -65,6 +84,16 @@ func (p *productController) GetProductById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, product)
 }
 
+// CreateProduct godoc
+// @Summary Criar produto
+// @Tags Products
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param product body model.Product true "Produto"
+// @Success 201 {object} model.Product
+// @Failure 400 {object} map[string]string
+// @Router /products [post]
 func (p *productController) CreateProduct(ctx *gin.Context) {
 
 	var product model.Product
@@ -84,6 +113,17 @@ func (p *productController) CreateProduct(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, insertedProduct)
 }
 
+// UpdateProductById godoc
+// @Summary Atualizar produto
+// @Tags Products
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "ID do produto"
+// @Param product body model.Product true "Campos para atualizar"
+// @Success 200 {object} model.Product
+// @Failure 400 {object} model.Response
+// @Router /products/{id} [put]
 func (p *productController) UpdateProductById(ctx *gin.Context) {
 
 	var product model.Product
@@ -135,6 +175,15 @@ func (p *productController) UpdateProductById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, updatedProduct)
 }
 
+// DeleteProductById godoc
+// @Summary Deletar produto
+// @Tags Products
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "ID do produto"
+// @Success 200 {object} model.Response
+// @Failure 400 {object} model.Response
+// @Router /products/{id} [delete]
 func (p *productController) DeleteProductById(ctx *gin.Context) {
 
 	id := ctx.Param("id")
