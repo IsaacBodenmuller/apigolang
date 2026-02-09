@@ -7,6 +7,12 @@ services:
     build: .
     ports:
       - "8000:8000"
+    environment:
+      DB_HOST: go_db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: 1234
+      DB_NAME: postgres
     depends_on:
       - go_db
   go_db:
@@ -20,6 +26,7 @@ services:
       - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
 volumes:
   pgdata: {}
