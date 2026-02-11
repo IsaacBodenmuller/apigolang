@@ -1,9 +1,9 @@
 package model
 
 type CreateUserRequest struct {
-	Nome        string `json:"nome" binding:"required"`
-	NomeUsuario string `json:"nomeUsuario" binding:"required"`
-	Email       string `json:"email" binding:"required"`
-	Senha       string `json:"senha" binding:"required"`
-	Perfil      string `json:"perfil"`
+	Name     string `json:"name" binding:"required"`
+	Username string `json:"username" binding:"required"`
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
+	Profile  string `json:"profile"`
 }

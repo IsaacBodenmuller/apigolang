@@ -8,9 +8,9 @@ import (
 )
 
 type UserRepository interface {
-	GetToken(nome_usuario string) (*model.User, string, error)
+	GetToken(request_name string) (*model.User, string, error)
 	CreateUser(user model.User) error
-	UserExists(nomeUsuario string) (bool, error)
+	UserExists(user_username string) (bool, error)
 	EmailExists(email string) (bool, error)
 }
 
@@ -22,20 +22,20 @@ func NewAuthUseCase(r UserRepository) *AuthUseCase {
 	return &AuthUseCase{repository: r}
 }
 
-func (a *AuthUseCase) Login(nome_usuario, senha string) (*model.User, error) {
+func (a *AuthUseCase) Login(request_name, request_password string) (*model.User, error) {
 	
-	user, senha_usuario, err := a.repository.GetToken(nome_usuario)
+	user, user_password, err := a.repository.GetToken(request_name)
 	if err != nil {
 		return nil, err
 	}
 
-	if !user.Ativo {
+	if !user.Active {
 		return nil, errors.New("O usuário está inativo")
 	}
 
 	err = bcrypt.CompareHashAndPassword(
-		[]byte(senha_usuario),
-		[]byte(senha),
+		[]byte(user_password),
+		[]byte(request_password),
 	)
 
 	if err != nil {
@@ -47,7 +47,7 @@ func (a *AuthUseCase) Login(nome_usuario, senha string) (*model.User, error) {
 
 func (a *AuthUseCase) CreateUser(req model.CreateUserRequest) error {
 
-	userExists, err := a.repository.UserExists(req.NomeUsuario)
+	userExists, err := a.repository.UserExists(req.Username)
 	if err != nil {
 		return err
 	}
@@ -63,22 +63,22 @@ func (a *AuthUseCase) CreateUser(req model.CreateUserRequest) error {
 		return errors.New("Esse email já está cadastrado")
 	}
 
-	if req.Perfil == "" {
-		req.Perfil = "SEM-P"
+	if req.Profile == "" {
+		req.Profile = "SEM-P"
 	}
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(req.Senha), bcrypt.DefaultCost)
+	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return errors.New("erro ao criptografar senha")
 	}
 
 	user := model.User{
-		Nome: req.Nome,
-		NomeUsuario: req.NomeUsuario,
+		Name: req.Name,
+		Username: req.Username,
 		Email: req.Email,
-		Senha: string(hash),
-		Perfil: req.Perfil,
-		Ativo: true,
+		Password: string(hash),
+		Profile: req.Profile,
+		Active: true,
 	}
 
 	return a.repository.CreateUser(user)

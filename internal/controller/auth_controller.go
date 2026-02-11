@@ -38,7 +38,7 @@ func (userCtrl *UserController) Login(c *gin.Context) {
 		return
 	}
 
-	user, err := userCtrl.usecase.Login(req.NomeUsuario, req.Senha)
+	user, err := userCtrl.usecase.Login(req.Username, req.Password)
 	if err != nil {
 		c.JSON(401, gin.H{
 			"error": err.Error(),
@@ -46,7 +46,7 @@ func (userCtrl *UserController) Login(c *gin.Context) {
 		return
 	}
 
-	token, _ := auth.GenerateToken(user.Id, user.Nome, user.NomeUsuario, user.Perfil)
+	token, _ := auth.GenerateToken(user.Id, user.Name, user.Username, user.Profile)
 
 	c.JSON(200, gin.H{
 		"token": token,
