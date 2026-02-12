@@ -114,6 +114,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/refresh": {
+            "post": {
+                "description": "Obtém um novo token ao usuário",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Reautenticar usuário",
+                "parameters": [
+                    {
+                        "description": "Dados do usuário",
+                        "name": "credentials",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CreateUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/products": {
             "get": {
                 "security": [
@@ -333,24 +377,24 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "email",
-                "nome",
-                "nomeUsuario",
-                "senha"
+                "name",
+                "password",
+                "username"
             ],
             "properties": {
                 "email": {
                     "type": "string"
                 },
-                "nome": {
+                "name": {
                     "type": "string"
                 },
-                "nomeUsuario": {
+                "password": {
                     "type": "string"
                 },
-                "perfil": {
+                "profile": {
                     "type": "string"
                 },
-                "senha": {
+                "username": {
                     "type": "string"
                 }
             }
@@ -358,13 +402,13 @@ const docTemplate = `{
         "model.Product": {
             "type": "object",
             "properties": {
-                "productId": {
+                "product_id": {
                     "type": "integer"
                 },
-                "productName": {
+                "product_name": {
                     "type": "string"
                 },
-                "productPrice": {
+                "product_price": {
                     "type": "number"
                 }
             }
@@ -380,10 +424,10 @@ const docTemplate = `{
         "model.TokenRequest": {
             "type": "object",
             "properties": {
-                "nomeUsuario": {
+                "password": {
                     "type": "string"
                 },
-                "senha": {
+                "username": {
                     "type": "string"
                 }
             }

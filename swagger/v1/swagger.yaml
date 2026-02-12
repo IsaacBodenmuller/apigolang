@@ -3,27 +3,27 @@ definitions:
     properties:
       email:
         type: string
-      nome:
+      name:
         type: string
-      nomeUsuario:
+      password:
         type: string
-      perfil:
+      profile:
         type: string
-      senha:
+      username:
         type: string
     required:
     - email
-    - nome
-    - nomeUsuario
-    - senha
+    - name
+    - password
+    - username
     type: object
   model.Product:
     properties:
-      productId:
+      product_id:
         type: integer
-      productName:
+      product_name:
         type: string
-      productPrice:
+      product_price:
         type: number
     type: object
   model.Response:
@@ -33,9 +33,9 @@ definitions:
     type: object
   model.TokenRequest:
     properties:
-      nomeUsuario:
+      password:
         type: string
-      senha:
+      username:
         type: string
     type: object
 info:
@@ -107,6 +107,35 @@ paths:
               type: string
             type: object
       summary: Autenticar usuário
+      tags:
+      - Auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Obtém um novo token ao usuário
+      parameters:
+      - description: Dados do usuário
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Reautenticar usuário
       tags:
       - Auth
   /products:

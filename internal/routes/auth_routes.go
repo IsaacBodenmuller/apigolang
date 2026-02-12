@@ -17,4 +17,5 @@ func RegisterAuthRoutes(r *gin.Engine, db *sql.DB) {
 
 	r.POST("/auth/login", authController.Login)
 	r.POST("/auth/create", authController.CreateUser)
+	r.POST("/auth/refresh", authController.Refresh)
 }

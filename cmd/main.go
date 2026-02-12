@@ -4,6 +4,7 @@ import (
 	"APIGolang/internal/db"
 	"APIGolang/internal/routes"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
 	_ "APIGolang/swagger/v1"
@@ -23,6 +24,13 @@ import (
 func main() {
 	
 	server := gin.Default()
+
+	server.Use(cors.New(cors.Config{
+		AllowOrigins: []string{"http://localhost:5173"},
+		AllowMethods: []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders: []string{"Origin", "Content-Type", "Authorization"},
+		AllowCredentials: true,
+	}))
 
 	dbConnection, err := db.ConnectDB()
 	if err != nil {

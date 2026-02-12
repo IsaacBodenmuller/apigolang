@@ -13,6 +13,7 @@ services:
       DB_USER: postgres
       DB_PASSWORD: 1234
       DB_NAME: postgres
+      JWT_SECRET: "LIsNg1EQuI1g5G0mDIgWS8dSntfzpYRE+B2+jfXBiuA="
     depends_on:
       - go_db
   go_db:
