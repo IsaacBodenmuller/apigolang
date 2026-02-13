@@ -12,6 +12,7 @@ type UserRepository interface {
 	CreateUser(user model.User) error
 	UserExists(user_username string) (bool, error)
 	EmailExists(email string) (bool, error)
+	GetUserById(id int) (*model.User, error)
 }
 
 type AuthUseCase struct {
@@ -20,6 +21,10 @@ type AuthUseCase struct {
 
 func NewAuthUseCase(r UserRepository) *AuthUseCase {
 	return &AuthUseCase{repository: r}
+}
+
+func (uc *AuthUseCase) GetUserById(id int) (*model.User, error) {
+	return uc.repository.GetUserById(id)
 }
 
 func (a *AuthUseCase) Login(request_name, request_password string) (*model.User, error) {

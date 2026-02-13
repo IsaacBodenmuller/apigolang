@@ -44,7 +44,7 @@ func (userCtrl *UserController) Login(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := auth.GenerateToken(user.Id, user.Username)
+	accessToken, err := auth.GenerateToken(user.Id, user.Username, user.Email, user.Profile)
 	if err != nil {
 		c.JSON(500, gin.H{"error": "erro ao gerar access token"})
 		return
@@ -100,22 +100,22 @@ func (userCtrl *UserController) Refresh(c *gin.Context) {
 		return
 	}
 
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		c.JSON(401, gin.H{"error": "claims inválidas"})
-		return
-	}
-
-	idFloat, ok := claims["id"].(float64)
-	if !ok {
-		c.JSON(401, gin.H{"error": "id inválido"})
-		return
-	}
-
+	claims := token.Claims.(jwt.MapClaims)
+	idFloat := claims["id"].(float64)
 	userId := int(idFloat)
 
-	newAccessToken, _ := auth.GenerateToken(userId, "")
+	user, err := userCtrl.usecase.GetUserById(userId)
+	if err != nil {
+		c.JSON(401, gin.H{"error": "usuário não encontrado"})
+		return
+	}
 
+	newAccessToken, err := auth.GenerateToken(user.Id, user.Username, user.Email, user.Profile)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "erro ao gerar access token"})
+		return
+	}
+	
 	c.JSON(200, gin.H{
 		"access_token": newAccessToken,
 	})

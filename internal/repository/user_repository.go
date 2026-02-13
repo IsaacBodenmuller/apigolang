@@ -17,18 +17,35 @@ func NewUserRepository(connection *sql.DB) UserRepository {
 	}
 }
 
+func (r *UserRepository) GetUserById(id int) (*model.User, error) {
+
+	var user model.User
+
+	query := "SELECT id_usuario, nome, nome_usuario, email, perfil, ativo FROM usuario WHERE id_usuario = $1"
+
+	err := r.connection.QueryRow(query, id).Scan(&user.Id, &user.Name, &user.Username, &user.Email, &user.Profile, &user.Active)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("usuário não encontrado")
+		}
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 func (r *UserRepository) GetToken(request_name string) (*model.User, string, error) {
 
 	var user model.User
 	var user_password string
 
-	query := "SELECT id_usuario, nome, nome_usuario, senha, perfil, ativo FROM usuario WHERE nome_usuario = $1"
+	query := "SELECT id_usuario, nome, nome_usuario, email, senha, perfil, ativo FROM usuario WHERE nome_usuario = $1"
 
-	err := r.connection.QueryRow(query, request_name).Scan(&user.Id, &user.Name, &user.Username, &user_password, &user.Profile, &user.Active)
+	err := r.connection.QueryRow(query, request_name).Scan(&user.Id, &user.Name, &user.Username, &user.Email, &user_password, &user.Profile, &user.Active)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, "", errors.New("Credenciais inválidas")
+			return nil, "", errors.New("Ocorreu um erro")
 		}
 		fmt.Println(err)
 		return nil, "", err
