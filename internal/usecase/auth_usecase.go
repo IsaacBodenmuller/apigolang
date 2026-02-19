@@ -7,29 +7,21 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type UserRepository interface {
+type AuthRepository interface {
 	GetToken(request_name string) (*model.User, string, error)
-	CreateUser(user model.User) error
-	UserExists(user_username string) (bool, error)
-	EmailExists(email string) (bool, error)
-	GetUserById(id int) (*model.User, error)
 }
 
 type AuthUseCase struct {
-	repository UserRepository
+	authRepo AuthRepository
 }
 
-func NewAuthUseCase(r UserRepository) *AuthUseCase {
-	return &AuthUseCase{repository: r}
-}
-
-func (uc *AuthUseCase) GetUserById(id int) (*model.User, error) {
-	return uc.repository.GetUserById(id)
+func NewAuthUseCase(r AuthRepository) *AuthUseCase {
+	return &AuthUseCase{authRepo: r}
 }
 
 func (a *AuthUseCase) Login(request_name, request_password string) (*model.User, error) {
 	
-	user, user_password, err := a.repository.GetToken(request_name)
+	user, user_password, err := a.authRepo.GetToken(request_name)
 	if err != nil {
 		return nil, err
 	}
@@ -48,43 +40,4 @@ func (a *AuthUseCase) Login(request_name, request_password string) (*model.User,
 	}
 
 	return user, nil
-}
-
-func (a *AuthUseCase) CreateUser(req model.CreateUserRequest) error {
-
-	userExists, err := a.repository.UserExists(req.Username)
-	if err != nil {
-		return err
-	}
-	if userExists {
-		return errors.New("Nome de usuário já cadastrado")
-	}
-
-	emailExists, err := a.repository.EmailExists(req.Email)
-	if err != nil {
-		return err
-	}
-	if emailExists {
-		return errors.New("Esse email já está cadastrado")
-	}
-
-	if req.Profile == "" {
-		req.Profile = "SEM-P"
-	}
-
-	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return errors.New("erro ao criptografar senha")
-	}
-
-	user := model.User{
-		Name: req.Name,
-		Username: req.Username,
-		Email: req.Email,
-		Password: string(hash),
-		Profile: req.Profile,
-		Active: true,
-	}
-
-	return a.repository.CreateUser(user)
 }

@@ -39,9 +39,9 @@ func (r *UserRepository) GetToken(request_name string) (*model.User, string, err
 	var user model.User
 	var user_password string
 
-	query := "SELECT id_usuario, nome, nome_usuario, email, senha, perfil, ativo FROM usuario WHERE nome_usuario = $1"
+	query := "SELECT id_usuario, nome, nome_usuario, email, senha, perfil, role, ativo FROM usuario WHERE nome_usuario = $1"
 
-	err := r.connection.QueryRow(query, request_name).Scan(&user.Id, &user.Name, &user.Username, &user.Email, &user_password, &user.Profile, &user.Active)
+	err := r.connection.QueryRow(query, request_name).Scan(&user.Id, &user.Name, &user.Username, &user.Email, &user_password, &user.Profile, &user.Role, &user.Active)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -56,10 +56,10 @@ func (r *UserRepository) GetToken(request_name string) (*model.User, string, err
 
 func (r *UserRepository) CreateUser(user model.User) error {
 
-	query := "INSERT INTO usuario (nome, nome_usuario, email, senha, perfil, ativo)" +
-			 " VALUES ($1, $2, $3, $4, $5, $6)"
+	query := "INSERT INTO usuario (nome, nome_usuario, email, senha, perfil, role, ativo)" +
+			 " VALUES ($1, $2, $3, $4, $5, $6, $7)"
 
-	_, err := r.connection.Exec(query, user.Name, user.Username, user.Email, user.Password, user.Profile, user.Active)
+	_, err := r.connection.Exec(query, user.Name, user.Username, user.Email, user.Password, user.Profile, user.Role, user.Active)
 
 	return err
 }
@@ -88,4 +88,41 @@ func (r *UserRepository) EmailExists(user_email string) (bool, error) {
 		return false, err
 	}
 	return count > 0, nil
+}
+
+func (r *UserRepository) GetAllUsers() ([]model.User, error) {
+
+	var users []model.User
+
+	query := "SELECT id_usuario, nome, nome_usuario, email, senha, perfil, role FROM usuario"
+	rows, err := r.connection.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var user model.User
+		var password string
+		
+		err := rows.Scan(
+			&user.Id,
+			&user.Name,
+			&user.Username,
+			&user.Email,
+			password,
+			&user.Profile,
+			&user.Role,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, user)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return users, nil
 }

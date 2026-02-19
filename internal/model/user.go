@@ -7,5 +7,6 @@ type User struct {
 	Email    string
 	Password string
 	Profile  string
+	Role     string
 	Active   bool
 }

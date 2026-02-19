@@ -6,16 +6,16 @@ import (
 	"APIGolang/internal/usecase"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type UserController struct {
-	usecase *usecase.AuthUseCase
+type AuthController struct {
+	authUsecase *usecase.AuthUseCase
+	userUsecase *usecase.UserUseCase
 }
 
-func NewUserController(uc *usecase.AuthUseCase) *UserController {
-	return &UserController{usecase: uc}
+func NewAuthController(authUc *usecase.AuthUseCase, userUc *usecase.UserUseCase) *AuthController {
+	return &AuthController{authUsecase: authUc, userUsecase: userUc}
 }
 
 // Login godoc
@@ -29,22 +29,26 @@ func NewUserController(uc *usecase.AuthUseCase) *UserController {
 // @Failure 400 {object} map[string]string
 // @Failure 401 {object} map[string]string
 // @Router /auth/login [post]
-func (userCtrl *UserController) Login(c *gin.Context) {
+func (authCtrl *AuthController) Login(c *gin.Context) {
 
 	var req model.TokenRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
+		if req.Remember == nil {
+			c.JSON(400,gin.H{"error": "informe a tag remember"})
+			return
+		}
 		c.JSON(400,gin.H{"error": "dados inválidos"})
 		return
 	}
 
-	user, err := userCtrl.usecase.Login(req.Username, req.Password)
+	user, err := authCtrl.authUsecase.Login(req.Username, req.Password)
 	if err != nil {
 		c.JSON(401, gin.H{"error": "credenciais inválidas"})
 		return
 	}
 
-	accessToken, err := auth.GenerateToken(user.Id, user.Username, user.Email, user.Profile)
+	accessToken, err := auth.GenerateToken(user.Id, user.Username, user.Email, user.Profile, user.Role, user.Active)
 	if err != nil {
 		c.JSON(500, gin.H{"error": "erro ao gerar access token"})
 		return
@@ -58,7 +62,7 @@ func (userCtrl *UserController) Login(c *gin.Context) {
 
 	maxAge := 0
 	if req.Remember != nil && *req.Remember {
-		maxAge = 7 * 24 * 60 * 60
+		maxAge = 60 * 60
 	}
 	c.SetCookie(
 		"refresh_token",
@@ -76,17 +80,18 @@ func (userCtrl *UserController) Login(c *gin.Context) {
 	})
 }
 
+// //@Param credentials body model.CreateUserRequest true "Dados do usuário"
+
 // Refresh godoc
 // @Summary Reautenticar usuário
 // @Description Obtém um novo token ao usuário
 // @Tags Auth
 // @Accept json
 // @Produce json
-// @Param credentials body model.CreateUserRequest true "Dados do usuário"
 // @Success 201 {object} map[string]string
 // @Failure 400 {object} map[string]interface{}
 // @Router /auth/refresh [post]
-func (userCtrl *UserController) Refresh(c *gin.Context) {
+func (authCtrl *AuthController) Refresh(c *gin.Context) {
 	
 	refreshToken, err := c.Cookie("refresh_token")
 	if err != nil {
@@ -104,13 +109,13 @@ func (userCtrl *UserController) Refresh(c *gin.Context) {
 	idFloat := claims["id"].(float64)
 	userId := int(idFloat)
 
-	user, err := userCtrl.usecase.GetUserById(userId)
+	user, err := authCtrl.userUsecase.GetUserById(userId)
 	if err != nil {
 		c.JSON(401, gin.H{"error": "usuário não encontrado"})
 		return
 	}
 
-	newAccessToken, err := auth.GenerateToken(user.Id, user.Username, user.Email, user.Profile)
+	newAccessToken, err := auth.GenerateToken(user.Id, user.Username, user.Email, user.Profile, user.Role, user.Active)
 	if err != nil {
 		c.JSON(500, gin.H{"error": "erro ao gerar access token"})
 		return
@@ -121,57 +126,62 @@ func (userCtrl *UserController) Refresh(c *gin.Context) {
 	})
 }
 
-// CreateUser godoc
-// @Summary Criar usuário
-// @Description Cria um novo usuário
+
+// //@Param credentials body model.CreateUserRequest true "Dados do usuário"
+
+// AlterPassword godoc
+// @Summary Alterar senha
+// @Description Altera a senha de um usuário
 // @Tags Auth
 // @Accept json
 // @Produce json
-// @Param credentials body model.CreateUserRequest true "Dados do usuário"
 // @Success 201 {object} map[string]string
 // @Failure 400 {object} map[string]interface{}
-// @Router /auth/create [post]
-func (userCtrl *UserController) CreateUser(c *gin.Context) {
+// @Router /auth/alterpassword [post]
+func (authCtrl *AuthController) AlterPassword(c *gin.Context) {
 
-	var req model.CreateUserRequest
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-
-		validationErrors, ok := err.(validator.ValidationErrors)
-		if ok {
-			errors := make(map[string]string)
-
-			for _, filedErr := range validationErrors {
-				switch filedErr.Field() {
-				case "Nome":
-					errors["name"] = "Nome é obrigatório"
-				case "NomeUsuario":
-					errors["username"] = "Nome de usuário é obrigatório"
-				case "Email":
-					errors["email"] = "Email é obrigatório"
-				case "Senha":
-					errors["password"] = "Senha é obrigatório"
-				}
-			}
-
-			c.JSON(400, gin.H{
-				"errors": err.Error() + " aqui ",
-			})
-			return
-		}
-		c.JSON(400, gin.H{"error": "Dados inválidos"})
-		return
-	}
-
-	err := userCtrl.usecase.CreateUser(req)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"error": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(201, gin.H{
-		"message": "Usuário criado com sucesso",
-	})
 }
+// 	var req model.CreateUserRequest
+
+// 	if err := c.ShouldBindJSON(&req); err != nil {
+
+// 		validationErrors, ok := err.(validator.ValidationErrors)
+// 		if ok {
+// 			errors := make(map[string]string)
+
+// 			for _, filedErr := range validationErrors {
+// 				switch filedErr.Field() {
+// 				case "Nome":
+// 					errors["name"] = "Nome é obrigatório"
+// 				case "NomeUsuario":
+// 					errors["username"] = "Nome de usuário é obrigatório"
+// 				case "Email":
+// 					errors["email"] = "Email é obrigatório"
+// 				case "Senha":
+// 					errors["password"] = "Senha é obrigatório"
+// 				}
+// 			}
+
+// 			c.JSON(400, gin.H{
+// 				"errors": err.Error() + " aqui ",
+// 			})
+// 			return
+// 		}
+// 		c.JSON(400, gin.H{"error": "Dados inválidos"})
+// 		return
+// 	}
+
+// 	err := authCtrl.usecase.CreateUser(req)
+// 	if err != nil {
+// 		c.JSON(400, gin.H{
+// 			"error": err.Error(),
+// 		})
+// 		return
+// 	}
+
+// 	c.JSON(201, gin.H{
+// 		"message": "Usuário criado com sucesso",
+// 	})
+// }
+
+

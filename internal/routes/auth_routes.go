@@ -13,9 +13,11 @@ func RegisterAuthRoutes(r *gin.Engine, db *sql.DB) {
 	
 	userRepository := repository.NewUserRepository(db)
 	authUsecase := usecase.NewAuthUseCase(&userRepository)
-	authController := controller.NewUserController(authUsecase)
+	userUsecase := usecase.NewUserUseCase(&userRepository)
+	authController := controller.NewAuthController(authUsecase, userUsecase)
 
 	r.POST("/auth/login", authController.Login)
-	r.POST("/auth/create", authController.CreateUser)
 	r.POST("/auth/refresh", authController.Refresh)
+	r.POST("/auth/alterPassword", authController.AlterPassword)
+
 }

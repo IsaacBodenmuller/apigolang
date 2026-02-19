@@ -9,7 +9,7 @@ import (
 
 var secretKey = []byte(os.Getenv("JWT_SECRET"))
 
-func GenerateToken(userId int, username, email, perfil string) (string, error) {
+func GenerateToken(userId int, username, email, perfil, role string, active bool) (string, error) {
 
 	if len(secretKey) == 0 {
 		panic("erro token jwt")
@@ -20,6 +20,8 @@ func GenerateToken(userId int, username, email, perfil string) (string, error) {
 		"username": username,
 		"email": email,
 		"profile": perfil,
+		"role": role,
+		"active": active,
 		"exp":     time.Now().Add(15 * time.Minute).Unix(),
 	}
 
