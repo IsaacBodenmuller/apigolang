@@ -3,6 +3,7 @@ package controller
 import (
 	"APIGolang/internal/model"
 	"APIGolang/internal/usecase"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -31,6 +32,10 @@ func (userCtrl *UserController) CreateUser(c *gin.Context) {
 	var req model.CreateUserRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
+
+		// if req.Role != "ADM" {
+		// 	c.JSON(403, gin.H{"error": "acesso negado"})
+		// }
 
 		validationErrors, ok := err.(validator.ValidationErrors)
 		if ok {
@@ -85,6 +90,11 @@ func (userCtrl *UserController) CreateUser(c *gin.Context) {
 // @Router /user/getall [post]
 func (userCtrl *UserController) GetAllUsers(c *gin.Context) {
 
+	
+	// if req.Role != "ADM" {
+	// 	c.JSON(403, gin.H{"error": "acesso negado"})
+	// }
+
 	users, err := userCtrl.usecase.GetAllUsers()
 	if err != nil {
 		c.JSON(400, err)
@@ -92,4 +102,41 @@ func (userCtrl *UserController) GetAllUsers(c *gin.Context) {
 
 	c.JSON(200, users)
 
+}
+
+// func (userCtrl *UserController) GetUserById(c *gin.Context) {
+
+// 	id := c.Param("id")
+// 	user
+// }
+
+func (userCtrl *UserController) DeleteUserById(c *gin.Context) {
+
+	id := c.Param("id")
+	if id == "" {
+		response := model.Response{
+			Message: "Id do usuário não pode ser nulo",
+		}
+		c.JSON(400, response)
+		return
+	}
+	userId, err := strconv.Atoi(id)
+	if err != nil {
+		response := model.Response{
+			Message: "Id do produto precisa ser um número",
+		}
+		c.JSON(400, response)
+		return
+	}
+
+	isSucess, err := userCtrl.usecase.DeleteUserById(userId)
+	if err != nil {
+		response := model.Response{
+			Message: "Houve um erro",
+		}
+		c.JSON(400, response)
+		return
+	}
+
+	c.JSON(200, isSucess)
 }

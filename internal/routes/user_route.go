@@ -19,8 +19,9 @@ func RegisterUserRoutes(r *gin.Engine, db *sql.DB) {
 
 	userRoutes.Use(middleware.JWTAuth()) 
 	{
-		r.POST("/create", userController.CreateUser)
-		r.GET("/getAll", userController.GetAllUsers)
+		userRoutes.POST("/create", userController.CreateUser)
+		userRoutes.GET("/getAll", userController.GetAllUsers)
+		userRoutes.DELETE("/delete/:id", userController.DeleteUserById)
 	}
 }
 

@@ -94,7 +94,7 @@ func (r *UserRepository) GetAllUsers() ([]model.User, error) {
 
 	var users []model.User
 
-	query := "SELECT id_usuario, nome, nome_usuario, email, senha, perfil, role FROM usuario"
+	query := "SELECT id_usuario, nome, nome_usuario, email, senha, perfil, role, ativo FROM usuario"
 	rows, err := r.connection.Query(query)
 	if err != nil {
 		return nil, err
@@ -104,20 +104,22 @@ func (r *UserRepository) GetAllUsers() ([]model.User, error) {
 	for rows.Next() {
 		var user model.User
 		var password string
-		
+
 		err := rows.Scan(
 			&user.Id,
 			&user.Name,
 			&user.Username,
 			&user.Email,
-			password,
+			&password,
 			&user.Profile,
 			&user.Role,
+			&user.Active,
 		)
 		if err != nil {
+			fmt.Println(err)
 			return nil, err
 		}
-
+		
 		users = append(users, user)
 	}
 
@@ -125,4 +127,26 @@ func (r *UserRepository) GetAllUsers() ([]model.User, error) {
 		return nil, err
 	}
 	return users, nil
+}
+
+func (r *UserRepository) DeleteUserById(user_id int) (bool, error) {
+
+	query := "DELETE FROM usuario WHERE id_usuario = $1"
+
+	result, err := r.connection.Exec(query, user_id)
+	if err != nil{
+		fmt.Println(err)
+		return false, err
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	if rows == 0 {
+		return false, nil
+	}
+
+	return true, nil
 }

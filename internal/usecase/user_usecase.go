@@ -10,9 +10,10 @@ import (
 type UserRepository interface {
 	CreateUser(user model.User) error
 	UserExists(user_username string) (bool, error)
-	EmailExists(email string) (bool, error)
-	GetUserById(id int) (*model.User, error)
+	EmailExists(user_email string) (bool, error)
+	GetUserById(user_id int) (*model.User, error)
 	GetAllUsers() ([]model.User, error)
+	DeleteUserById(user_id int) (bool, error)
 }
 
 type UserUseCase struct {
@@ -73,4 +74,13 @@ func (a *UserUseCase) CreateUser(req model.CreateUserRequest) error {
 func (a *UserUseCase) GetAllUsers() ([]model.User, error) {
 
 	return a.repository.GetAllUsers()
+}
+
+func (a *UserUseCase) DeleteUserById(user_id int) (bool, error) {
+
+	isSucess, err := a.repository.DeleteUserById(user_id)
+	if err != nil {
+		return false, err
+	}
+	return isSucess, nil
 }
