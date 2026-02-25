@@ -77,6 +77,20 @@ func (r *UserRepository) UserExists(user_username string) (bool, error) {
 	return count > 0, nil
 }
 
+func (r *UserRepository) UsernameExistsForOtherUser(username string, user_id int) (bool, error) {
+	query := "SELECT 1 FROM usuario WHERE nome_usuario = $1 AND id_usuario <> $2"
+	var exists int
+	err := r.connection.QueryRow(query, username, user_id).Scan(&exists)
+
+	if err == sql.ErrNoRows {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
 func (r *UserRepository) EmailExists(user_email string) (bool, error) {
 
 	var count int
@@ -88,6 +102,20 @@ func (r *UserRepository) EmailExists(user_email string) (bool, error) {
 		return false, err
 	}
 	return count > 0, nil
+}
+
+func (r *UserRepository) EmailExistsForOtherUser(email string, user_id int) (bool, error) {
+	query := "SELECT 1 FROM usuario WHERE email = $1 AND id_usuario <> $2"
+	var exists int
+	err := r.connection.QueryRow(query, email, user_id).Scan(&exists)
+
+	if err == sql.ErrNoRows {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 func (r *UserRepository) GetAllUsers() ([]model.User, error) {
@@ -134,6 +162,30 @@ func (r *UserRepository) DeleteUserById(user_id int) (bool, error) {
 	query := "DELETE FROM usuario WHERE id_usuario = $1"
 
 	result, err := r.connection.Exec(query, user_id)
+	if err != nil{
+		fmt.Println(err)
+		return false, err
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	if rows == 0 {
+		return false, nil
+	}
+
+	return true, nil
+}
+
+
+
+func (r *UserRepository) UpdateUserById(user model.UpdateUserRequest, user_id int) (bool, error) {
+
+	query := "UPDATE usuario SET nome = $1, nome_usuario = $2, email = $3, perfil = $4, role = $5 WHERE id_usuario = $6"
+
+	result, err := r.connection.Exec(query, user.Name, user.Username, user.Email, user.Profile, user.Role, user_id)
 	if err != nil{
 		fmt.Println(err)
 		return false, err

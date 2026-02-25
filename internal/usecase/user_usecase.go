@@ -10,10 +10,13 @@ import (
 type UserRepository interface {
 	CreateUser(user model.User) error
 	UserExists(user_username string) (bool, error)
+	UsernameExistsForOtherUser(username string, user_id int) (bool, error)
 	EmailExists(user_email string) (bool, error)
+	EmailExistsForOtherUser(email string, user_id int) (bool, error)
 	GetUserById(user_id int) (*model.User, error)
 	GetAllUsers() ([]model.User, error)
 	DeleteUserById(user_id int) (bool, error)
+	UpdateUserById(user model.UpdateUserRequest, user_id int) (bool, error)
 }
 
 type UserUseCase struct {
@@ -79,6 +82,37 @@ func (a *UserUseCase) GetAllUsers() ([]model.User, error) {
 func (a *UserUseCase) DeleteUserById(user_id int) (bool, error) {
 
 	isSucess, err := a.repository.DeleteUserById(user_id)
+	if err != nil {
+		return false, err
+	}
+	return isSucess, nil
+}
+
+func (a *UserUseCase) UpdateUserById(user model.UpdateUserRequest, user_id int) (bool, error) {
+
+	userExists, err := a.repository.UsernameExistsForOtherUser(user.Username, user_id)
+	if err != nil {
+		return false, err
+	}
+	if userExists {
+		return false, errors.New("Nome de usuário já cadastrado")
+	}
+
+	emailExists, err := a.repository.EmailExistsForOtherUser(user.Email, user_id)
+	if err != nil {
+		return false, err
+	}
+	if emailExists {
+		return false, errors.New("Esse email já está cadastrado")
+	}
+
+	if user.Profile == "Administrador" {
+		user.Role = "ADM"
+	} else {
+		user.Role = "NO-ROLE"
+	}
+
+	isSucess, err := a.repository.UpdateUserById(user, user_id)
 	if err != nil {
 		return false, err
 	}

@@ -140,3 +140,41 @@ func (userCtrl *UserController) DeleteUserById(c *gin.Context) {
 
 	c.JSON(200, isSucess)
 }
+
+func (userCtrl *UserController) UpdateUserById(c *gin.Context) {
+
+	var user model.UpdateUserRequest
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(400, gin.H{"error": "Dados inválidos"})
+		return
+	}
+
+	id := c.Param("id")
+	if id == "" {
+		response := model.Response{
+			Message: "Id do usuário não pode ser nulo",
+		}
+		c.JSON(400, response)
+		return
+	}
+	userId, err := strconv.Atoi(id)
+	if err != nil {
+		response := model.Response{
+			Message: "Id do produto precisa ser um número",
+		}
+		c.JSON(400, response)
+		return
+	}
+
+	isSucess, err := userCtrl.usecase.UpdateUserById(user, userId)
+	if err != nil {
+		c.JSON(500, err)
+		return
+	}
+	if !isSucess {
+	c.JSON(404, gin.H{"error": "Usuário não encontrado"})
+	return
+}
+
+	c.JSON(200, isSucess)
+}
