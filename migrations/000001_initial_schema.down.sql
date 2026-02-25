@@ -1,0 +1,14 @@
+-- Rollback initial schema
+-- Drops all tables in reverse order of dependencies
+
+DROP TABLE IF EXISTS pagamento CASCADE;
+DROP TABLE IF EXISTS forma_pagamento CASCADE;
+DROP TABLE IF EXISTS item_venda CASCADE;
+DROP TABLE IF EXISTS venda CASCADE;
+DROP TABLE IF EXISTS caixa CASCADE;
+DROP TABLE IF EXISTS cliente CASCADE;
+DROP TABLE IF EXISTS movimentacao_estoque CASCADE;
+DROP TABLE IF EXISTS produto CASCADE;
+DROP TABLE IF EXISTS usuario CASCADE;
+DROP TABLE IF EXISTS fornecedor CASCADE;
+DROP TABLE IF EXISTS categoria CASCADE;
