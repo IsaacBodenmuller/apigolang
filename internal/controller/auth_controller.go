@@ -138,7 +138,28 @@ func (authCtrl *AuthController) Refresh(c *gin.Context) {
 // @Success 201 {object} map[string]string
 // @Failure 400 {object} map[string]interface{}
 // @Router /auth/alterpassword [post]
-func (authCtrl *AuthController) AlterPassword(c *gin.Context) {
+func (authCtrl *AuthController) ChangePassword(c *gin.Context) {
+
+	var req model.ChangePassword
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(401, gin.H{"error": "É necessário preencher todas as informações"})
+		return
+	}
+
+	isUpdated, err := authCtrl.authUsecase.ChangePassword(req)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	if !isUpdated {
+		c.JSON(404, gin.H{"error": "Usuário não encontrado"})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"message": "Senha alterada com sucesso",
+	})
 
 }
 // 	var req model.CreateUserRequest

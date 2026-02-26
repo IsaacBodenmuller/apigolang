@@ -17,6 +17,7 @@ type UserRepository interface {
 	GetAllUsers() ([]model.User, error)
 	DeleteUserById(user_id int) (bool, error)
 	UpdateUserById(user model.UpdateUserRequest, user_id int) (bool, error)
+	GetUserByEmail(email string) (*model.User, error)
 }
 
 type UserUseCase struct {

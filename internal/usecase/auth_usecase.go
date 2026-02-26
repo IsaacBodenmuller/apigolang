@@ -9,14 +9,17 @@ import (
 
 type AuthRepository interface {
 	GetToken(request_name string) (*model.User, string, error)
+	ChangePassword(email, password string) (bool, error)
+	EmailExists(user_email string) (bool, error)
 }
 
 type AuthUseCase struct {
 	authRepo AuthRepository
+	userRepo UserRepository
 }
 
-func NewAuthUseCase(r AuthRepository) *AuthUseCase {
-	return &AuthUseCase{authRepo: r}
+func NewAuthUseCase(authRepo AuthRepository, userRepo UserRepository) *AuthUseCase {
+	return &AuthUseCase{authRepo: authRepo, userRepo: userRepo}
 }
 
 func (a *AuthUseCase) Login(request_name, request_password string) (*model.User, error) {
@@ -40,4 +43,30 @@ func (a *AuthUseCase) Login(request_name, request_password string) (*model.User,
 	}
 
 	return user, nil
+}
+
+func (a *AuthUseCase) ChangePassword(user_request model.ChangePassword) (bool, error) {
+
+	emailExist, err := a.authRepo.EmailExists(user_request.Email)
+	if err != nil {
+		return false, err
+	}
+	if !emailExist {
+		return false, errors.New("Esse email não existe")
+	}
+
+	// user, err := a.userRepo.GetUserByEmail(user_request.Email)
+	// if err != nil {
+	// 	return false, errors.New("Esse email não está cadastrado")
+	// }
+
+	hash, err := bcrypt.GenerateFromPassword(
+		[]byte(user_request.NewPassword),
+		bcrypt.DefaultCost,
+	)
+	if err != nil {
+		return false, err
+	}
+
+	return a.authRepo.ChangePassword(user_request.Email, string(hash))
 }
