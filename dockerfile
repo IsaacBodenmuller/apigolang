@@ -23,6 +23,7 @@ RUN go mod download
 COPY cmd/ ./cmd/
 COPY internal/ ./internal/
 COPY swagger/ ./swagger/
+COPY migrations/ ./migrations/
 
 # Build with optimizations
 RUN CGO_ENABLED=0 GOOS=linux go build \
@@ -42,6 +43,9 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 # Copy only the binary from builder
 COPY --from=builder /build/main .
+
+# Copy migration files from builder
+COPY --from=builder /build/migrations ./migrations
 
 # Create non-root user for security
 RUN addgroup -g 1000 appuser && \
