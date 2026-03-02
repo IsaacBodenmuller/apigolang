@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS usuario (
     id_usuario SERIAL PRIMARY KEY,
     nome VARCHAR(30) NOT NULL,
     nome_usuario VARCHAR(20) NOT NULL,
-    email VARCHAR(50) NOT NULL,
+    email VARCHAR(50) NOT NULL UNIQUE,
     senha VARCHAR(256) NOT NULL,
     perfil VARCHAR(10) NOT NULL,
     ativo BOOLEAN NOT NULL,
